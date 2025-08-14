@@ -16,13 +16,14 @@ public:
   :Node("tb4_arc_action_server", options)
   {
     /*MILESTONE #2.2 Initialise the command velocity publisher share pointer*/
-    cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
+    this->cmd_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", rclcpp::SystemDefaultsQoS());
+		using namespace std::placeholders;
 
     /*MILESTONE #2.3 Initialise the odometry subsriber share pointer, and bing the call back function
       "odom_callback"
     */
-    odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(	"odom", 
-																																		10, 
+    this->odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(	"odom", 
+																																		rclcpp::SensorDataQoS(), 
 																																		std::bind(&TB4ArcActionServer::odom_callback, 
 																																							this, 
 																																							std::placeholders::_1)
@@ -32,12 +33,12 @@ public:
       Initialsie the drive arc action server with name as "drive_arc_prac2", and bind call back functions for
       handling of accepting a goal, cancelling a action, and process the accepted goal
     */
-    action_server_ = rclcpp_action::create_server<Drive_Arc>(
+    this->action_server_ = rclcpp_action::create_server<Drive_Arc>(
       this,
       "drive_arc_prac2",
-      std::bind(&TB4ArcActionServer::handle_goal, this, std::placeholders::_1, std::placeholders::_2),
-      std::bind(&TB4ArcActionServer::handle_cancel, this, std::placeholders::_1),
-      std::bind(&TB4ArcActionServer::handle_accepted, this, std::placeholders::_1)
+      std::bind(&TB4ArcActionServer::handle_goal, this, _1, _2),
+      std::bind(&TB4ArcActionServer::handle_cancel, this, _1),
+      std::bind(&TB4ArcActionServer::handle_accepted, this, _1)
     );
 
   RCLCPP_INFO(this->get_logger(), "TB4 Arc Action Server Initialized.");
